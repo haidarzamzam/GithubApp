@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_app/blocs/search/bloc.dart';
+import 'package:github_app/screens/menus/detail_menu_screen.dart';
 import 'package:github_app/utils/toast.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 
@@ -113,7 +114,16 @@ class _SearchUsersScreenState extends State<SearchUsersScreen> {
                       controller: _scrollController,
                       itemBuilder: (context, index) {
                         return GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => DetailMenuScreen(
+                                        url: _myDataUsers[index]['html_url'],
+                                        title: _myDataUsers[index]['login'],
+                                      )),
+                            );
+                          },
                           child: Padding(
                             padding: const EdgeInsets.only(
                                 left: 16.0, right: 16.0, top: 8.0, bottom: 8.0),

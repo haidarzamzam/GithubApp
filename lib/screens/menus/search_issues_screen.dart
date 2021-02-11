@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_app/blocs/search/bloc.dart';
+import 'package:github_app/screens/menus/detail_menu_screen.dart';
 import 'package:github_app/utils/toast.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 
@@ -120,7 +121,16 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
                           colorBadge = Colors.red;
                         }
                         return GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => DetailMenuScreen(
+                                        url: _myDataIssues[index]['html_url'],
+                                        title: _myDataIssues[index]['title'],
+                                      )),
+                            );
+                          },
                           child: Padding(
                             padding: const EdgeInsets.only(
                                 left: 16.0, right: 16.0, top: 8.0, bottom: 8.0),
@@ -130,7 +140,7 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
                                 CircleAvatar(
                                     backgroundImage: NetworkImage(
                                         _myDataIssues[index]['user']
-                                        ['avatar_url']),
+                                            ['avatar_url']),
                                     radius: 35.0),
                                 Expanded(
                                   child: Column(
