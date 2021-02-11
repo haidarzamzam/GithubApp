@@ -10,10 +10,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int pageCount = 1;
-  bool _isLoading = true;
-  bool _isMax = false;
-  bool _isEmpty = false;
+  int indexTab = 0;
   String search = "doraemon";
   String labelSearch = "Search Users. . .";
   final searchTextController = TextEditingController();
@@ -51,9 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           if (value.toString() == "") {
                             ToastUtils.show("Please fill the entry");
                           } else {
-                            _isLoading = true;
-                            pageCount = 1;
-                            _isMax = false;
                             search = value.toString();
                           }
                         },
@@ -91,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: EdgeInsets.only(bottom: 4.0),
               child: TabBar(
                   labelPadding: EdgeInsets.symmetric(horizontal: 4.0),
-                  isScrollable: true,
+                  isScrollable: false,
                   labelStyle:
                       TextStyle(fontSize: 16.0, fontFamily: 'Montserrat'),
                   labelColor: Colors.white,
@@ -102,14 +96,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (index == 0) {
                       setState(() {
                         labelSearch = "Search Users. . .";
+                        indexTab = index;
                       });
                     } else if (index == 1) {
                       setState(() {
                         labelSearch = "Search Issues. . .";
+                        indexTab = index;
                       });
                     } else if (index == 2) {
                       setState(() {
                         labelSearch = "Search Repository. . .";
+                        indexTab = index;
                       });
                     }
                   },
@@ -120,8 +117,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           alignment: Alignment.center,
                           child: Padding(
                             padding:
-                                const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: Text("Users"),
+                            const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: FittedBox(child: Text("Users")),
                           ),
                         ),
                       ),
@@ -132,8 +129,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           alignment: Alignment.center,
                           child: Padding(
                             padding:
-                                const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: Text("Issues"),
+                            const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: FittedBox(child: Text("Issues")),
                           ),
                         ),
                       ),
@@ -144,8 +141,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           alignment: Alignment.center,
                           child: Padding(
                             padding:
-                                const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: Text("Repositories"),
+                            const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: FittedBox(child: Text("Repositories")),
                           ),
                         ),
                       ),

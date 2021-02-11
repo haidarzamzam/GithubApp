@@ -58,7 +58,6 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return BlocListener(
       bloc: _searchBloc,
       listener: (context, state) {
