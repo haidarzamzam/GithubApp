@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:github_app/blocs/search/bloc.dart';
 import 'package:github_app/screens/menus/search_issues_screen.dart';
 import 'package:github_app/screens/menus/search_repositories_screen.dart';
 import 'package:github_app/screens/menus/search_users_screen.dart';
@@ -10,14 +12,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  SearchBloc _searchBloc;
   int indexTab = 0;
   String search = "doraemon";
   String labelSearch = "Search Users. . .";
-  final searchTextController = TextEditingController();
+  final searchTextController = TextEditingController(text: "doraemon");
 
   @override
   void initState() {
     super.initState();
+    _searchBloc = BlocProvider.of<SearchBloc>(context);
   }
 
   @override
@@ -49,6 +53,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             ToastUtils.show("Please fill the entry");
                           } else {
                             search = value.toString();
+                            if (indexTab == 0) {
+                              _searchBloc.add(GetSearchUsersEvent(
+                                  q: search, perPage: "10", page: 1));
+                            } else if (indexTab == 1) {
+                              _searchBloc.add(GetSearchIssuesEvent(
+                                  q: search, perPage: "10", page: 1));
+                            } else if (indexTab == 2) {
+                              _searchBloc.add(GetSearchRepositoriesEvent(
+                                  q: search, perPage: "10", page: 1));
+                            }
                           }
                         },
                         textInputAction: TextInputAction.search,
@@ -65,7 +79,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  _showModalBottomSheet();
+                },
                 child: Container(
                   width: 40,
                   height: 40,
@@ -87,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   labelPadding: EdgeInsets.symmetric(horizontal: 4.0),
                   isScrollable: false,
                   labelStyle:
-                      TextStyle(fontSize: 16.0, fontFamily: 'Montserrat'),
+                  TextStyle(fontSize: 16.0, fontFamily: 'Montserrat'),
                   labelColor: Colors.white,
                   unselectedLabelColor: Colors.white,
                   indicatorSize: TabBarIndicatorSize.label,
@@ -117,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           alignment: Alignment.center,
                           child: Padding(
                             padding:
-                            const EdgeInsets.symmetric(horizontal: 12.0),
+                                const EdgeInsets.symmetric(horizontal: 12.0),
                             child: FittedBox(child: Text("Users")),
                           ),
                         ),
@@ -158,5 +174,136 @@ class _HomeScreenState extends State<HomeScreen> {
         ]),
       ),
     );
+  }
+
+  void _showModalBottomSheet() {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return SettingsTypeSort();
+        });
+  }
+}
+
+class SettingsTypeSort extends StatefulWidget {
+  @override
+  _SettingsTypeSortState createState() => _SettingsTypeSortState();
+}
+
+class _SettingsTypeSortState extends State<SettingsTypeSort> {
+  int _radioValueTypeSort = 0;
+
+  void _handleRadioValueChangeSort(int value) {
+    setState(() {
+      _radioValueTypeSort = value;
+
+      switch (_radioValueTypeSort) {
+        case 0:
+          break;
+        case 1:
+          break;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery
+        .of(context)
+        .size;
+    return Container(
+        height: MediaQuery
+            .of(context)
+            .size
+            .height * 0.35,
+        color: Color(0xFF737373),
+        child: Container(
+            decoration: BoxDecoration(
+              color: Theme
+                  .of(context)
+                  .canvasColor,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(10),
+                topRight: const Radius.circular(10),
+              ),
+            ),
+            child: Container(
+                padding: MediaQuery
+                    .of(context)
+                    .viewInsets,
+                child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: new ListView(children: [
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Icon(
+                              Icons.clear,
+                              color: Colors.black,
+                              size: 30,
+                            ),
+                          ),
+                          SizedBox(width: size.width * 0.02),
+                          Text(
+                            "Choose type short",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 18),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: size.height * 0.02),
+                      Column(
+                        children: [
+                          Row(
+                            children: [
+                              Radio(
+                                value: 0,
+                                groupValue: _radioValueTypeSort,
+                                onChanged: _handleRadioValueChangeSort,
+                              ),
+                              Text(
+                                'Lazy loading',
+                                style: new TextStyle(fontSize: 16.0),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Radio(
+                                value: 1,
+                                groupValue: _radioValueTypeSort,
+                                onChanged: _handleRadioValueChangeSort,
+                              ),
+                              Text(
+                                'With index',
+                                style: new TextStyle(fontSize: 16.0),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: size.height * 0.01),
+                      Container(
+                        width: size.width,
+                        height: size.height * 0.05,
+                        child: RaisedButton(
+                            color: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              'Apply',
+                              style: TextStyle(fontSize: 16.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            }),
+                      ),
+                    ])))));
   }
 }

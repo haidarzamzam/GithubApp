@@ -62,6 +62,7 @@ class _SearchUsersScreenState extends State<SearchUsersScreen> {
       listener: (context, state) {
         if (state is GetSearchUsersSuccessState) {
           _isLoading = false;
+          search = state.q;
           if (state.page == 1) {
             if (state.result.items.isEmpty) {
               _isEmpty = true;
@@ -155,8 +156,7 @@ class _SearchUsersScreenState extends State<SearchUsersScreen> {
   Future<Null> _onRefresh() async {
     pageCount = 1;
     _isMax = false;
-    search = "doraemon";
-    _searchBloc.add(GetSearchUsersEvent(q: "", perPage: "10", page: 1));
+    _searchBloc.add(GetSearchUsersEvent(q: search, perPage: "10", page: 1));
     return;
   }
 }

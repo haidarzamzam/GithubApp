@@ -63,6 +63,7 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
       listener: (context, state) {
         if (state is GetSearchRepositoriesSuccessState) {
           _isLoading = false;
+          search = state.q;
           if (state.page == 1) {
             if (state.result.items.isEmpty) {
               _isEmpty = true;
@@ -184,8 +185,8 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
   Future<Null> _onRefresh() async {
     pageCount = 1;
     _isMax = false;
-    search = "doraemon";
-    _searchBloc.add(GetSearchRepositoriesEvent(q: "", perPage: "10", page: 1));
+    _searchBloc
+        .add(GetSearchRepositoriesEvent(q: search, perPage: "10", page: 1));
     return;
   }
 }

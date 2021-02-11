@@ -20,6 +20,7 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
   bool _isMax = false;
   bool _isEmpty = false;
   String search = "doraemon";
+  MaterialColor colorBadge;
 
   @override
   void initState() {
@@ -63,6 +64,7 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
       listener: (context, state) {
         if (state is GetSearchIssuesSuccessState) {
           _isLoading = false;
+          search = state.q;
           if (state.page == 1) {
             if (state.result.items.isEmpty) {
               _isEmpty = true;
@@ -112,6 +114,11 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
                     ListView.builder(
                       controller: _scrollController,
                       itemBuilder: (context, index) {
+                        if (_myDataIssues[index]['state'] == "open") {
+                          colorBadge = Colors.green;
+                        } else {
+                          colorBadge = Colors.red;
+                        }
                         return GestureDetector(
                           onTap: () {},
                           child: Padding(
@@ -123,12 +130,12 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
                                 CircleAvatar(
                                     backgroundImage: NetworkImage(
                                         _myDataIssues[index]['user']
-                                            ['avatar_url']),
+                                        ['avatar_url']),
                                     radius: 35.0),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Padding(
@@ -157,12 +164,16 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
                                             left: 8.0, top: 4.0),
                                         child: Container(
                                             decoration: BoxDecoration(
-                                                color: Colors.green,
+                                                color: colorBadge,
                                                 borderRadius:
                                                     BorderRadius.circular(10)),
                                             padding: const EdgeInsets.all(4.0),
                                             child: Text(
-                                                _myDataIssues[index]['state'])),
+                                              _myDataIssues[index]['state'] ??
+                                                  "closed",
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            )),
                                       )
                                     ],
                                   ),
@@ -185,8 +196,7 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
   Future<Null> _onRefresh() async {
     pageCount = 1;
     _isMax = false;
-    search = "doraemon";
-    _searchBloc.add(GetSearchIssuesEvent(q: "", perPage: "10", page: 1));
+    _searchBloc.add(GetSearchIssuesEvent(q: search, perPage: "10", page: 1));
     return;
   }
 }

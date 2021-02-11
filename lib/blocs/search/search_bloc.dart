@@ -40,7 +40,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       response = await getSearchRepositories(search);
 
       yield GetSearchRepositoriesSuccessState(
-          result: response, page: event.page);
+          result: response, page: event.page, q: event.q.trim());
     } catch (err) {
       yield GetSearchRepositoriesFailedState(message: err.toString());
     }
@@ -59,7 +59,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     try {
       response = await getUsersRepositories(search);
 
-      yield GetSearchUsersSuccessState(result: response, page: event.page);
+      yield GetSearchUsersSuccessState(
+          result: response, page: event.page, q: event.q.trim());
     } catch (err) {
       yield GetSearchUsersFailedState(message: err.toString());
     }
@@ -78,7 +79,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     try {
       response = await getIssuesRepositories(search);
 
-      yield GetSearchIssuesSuccessState(result: response, page: event.page);
+      yield GetSearchIssuesSuccessState(
+          result: response, page: event.page, q: event.q.trim());
     } catch (err) {
       yield GetSearchIssuesFailedState(message: err.toString());
     }

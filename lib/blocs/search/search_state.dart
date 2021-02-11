@@ -15,8 +15,9 @@ class SearchInitial extends SearchState {}
 class GetSearchRepositoriesSuccessState extends SearchState {
   final SearchRepositoriesResponse result;
   final int page;
+  final String q;
 
-  GetSearchRepositoriesSuccessState({this.result, this.page});
+  GetSearchRepositoriesSuccessState({this.result, this.page, this.q});
 }
 
 class GetSearchRepositoriesFailedState extends SearchState {
@@ -28,8 +29,9 @@ class GetSearchRepositoriesFailedState extends SearchState {
 class GetSearchUsersSuccessState extends SearchState {
   final SearchUsersResponse result;
   final int page;
+  final String q;
 
-  GetSearchUsersSuccessState({this.result, this.page});
+  GetSearchUsersSuccessState({this.result, this.page, this.q});
 }
 
 class GetSearchUsersFailedState extends SearchState {
@@ -41,8 +43,9 @@ class GetSearchUsersFailedState extends SearchState {
 class GetSearchIssuesSuccessState extends SearchState {
   final SearchIssuesResponse result;
   final int page;
+  final String q;
 
-  GetSearchIssuesSuccessState({this.result, this.page});
+  GetSearchIssuesSuccessState({this.result, this.page, this.q});
 }
 
 class GetSearchIssuesFailedState extends SearchState {
