@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:github_app/utils/constants.dart';
+import 'package:github_app/utils/tools.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class DetailMenuScreen extends StatefulWidget {
@@ -26,7 +28,7 @@ class _DetailMenuScreenState extends State<DetailMenuScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.blue,
+        backgroundColor: HexColor(Settings['MainColor']),
         centerTitle: true,
         title: Text(
           widget.title,

@@ -4,7 +4,9 @@ import 'package:github_app/blocs/search/bloc.dart';
 import 'package:github_app/screens/menus/search_issues_screen.dart';
 import 'package:github_app/screens/menus/search_repositories_screen.dart';
 import 'package:github_app/screens/menus/search_users_screen.dart';
+import 'package:github_app/utils/constants.dart';
 import 'package:github_app/utils/toast.dart';
+import 'package:github_app/utils/tools.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -31,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          backgroundColor: Colors.blue,
+          backgroundColor: HexColor(Settings['MainColor']),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -71,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           hintText: labelSearch,
                           prefixIcon: Icon(
                             Icons.search,
-                            color: Colors.blue,
+                            color: HexColor(Settings['MainColor']),
                           ),
                           hintStyle: TextStyle(color: Colors.grey),
                         ),
@@ -89,7 +91,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(10),
                     color: Colors.white,
                   ),
-                  child: Icon(Icons.tune, color: Colors.blue),
+                  child:
+                      Icon(Icons.tune, color: HexColor(Settings['MainColor'])),
                 ),
               ),
             ],
@@ -288,9 +291,9 @@ class _SettingsTypeSortState extends State<SettingsTypeSort> {
                       SizedBox(height: size.height * 0.01),
                       Container(
                         width: size.width,
-                        height: size.height * 0.05,
+                        height: size.height * 0.06,
                         child: RaisedButton(
-                            color: Colors.blue,
+                            color: HexColor(Settings['MainColor']),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
