@@ -91,15 +91,14 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
           _isLoading = false;
           print(state.message);
           if (state.message != null) {
-            ToastUtils.show("Silahkan diulang kembali");
+            ToastUtils.show("Please, try again");
           }
         }
       },
       child: BlocBuilder(
           bloc: _searchBloc,
           builder: (context, state) {
-            return Scaffold(
-                body: RefreshIndicator(
+            return RefreshIndicator(
               onRefresh: _onRefresh,
               child: LoadingOverlay(
                 color: Colors.white,
@@ -110,7 +109,7 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
                         visible: _isEmpty,
                         child: Center(
                             child: Text(
-                                "Pencarian tidak ada, Harap perbaiki kata kunci."))),
+                                "Search does not exist, Please correct keywords."))),
                     ListView.builder(
                       controller: _scrollController,
                       itemBuilder: (context, index) {
@@ -119,46 +118,56 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
                           child: Padding(
                             padding: const EdgeInsets.only(
                                 left: 16.0, right: 16.0, top: 8.0, bottom: 8.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 5,
-                                    blurRadius: 7,
-                                    offset: Offset(
-                                        0, 3), // changes position of shadow
-                                  ),
-                                ],
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5.0)),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: double.infinity,
-                                    height: size.height * 0.035,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black,
-                                      border: Border.all(
-                                          color: Colors.transparent,
-                                          width: 1.0),
-                                      borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(5.0),
-                                          topLeft: Radius.circular(5.0)),
-                                    ),
-                                    child: Center(
-                                      child: Text(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        _myDataRepositories[index]['owner']
+                                            ['avatar_url']),
+                                    radius: 35.0),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
                                           _myDataRepositories[index]['name'],
-                                          textAlign: TextAlign.center,
-                                          style:
-                                              TextStyle(color: Colors.white)),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.w700),
+                                        ),
+                                        Text(
+                                          _myDataRepositories[index]
+                                              ['created_at'],
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.star_border_outlined),
+                                            Text(
+                                                "${_myDataRepositories[index]['stargazers_count']}"),
+                                            SizedBox(width: 8.0),
+                                            Icon(Icons.remove_red_eye_outlined),
+                                            Text(
+                                                "${_myDataRepositories[index]['watchers_count']}"),
+                                            SizedBox(width: 8.0),
+                                            Icon(Icons.usb),
+                                            Text(
+                                                "${_myDataRepositories[index]['forks_count']}")
+                                          ],
+                                        )
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                )
+                              ],
                             ),
                           ),
                         );
@@ -168,7 +177,7 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
                   ],
                 ),
               ),
-            ));
+            );
           }),
     );
   }

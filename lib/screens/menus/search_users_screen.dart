@@ -62,7 +62,6 @@ class _SearchUsersScreenState extends State<SearchUsersScreen> {
       bloc: _searchBloc,
       listener: (context, state) {
         if (state is GetSearchUsersSuccessState) {
-          print("cekk" + state.result.items[0].login.toString());
           _isLoading = false;
           if (state.page == 1) {
             if (state.result.items.isEmpty) {
@@ -91,15 +90,14 @@ class _SearchUsersScreenState extends State<SearchUsersScreen> {
           _isLoading = false;
           print(state.message);
           if (state.message != null) {
-            ToastUtils.show("Silahkan diulang kembali");
+            ToastUtils.show("Please, try again");
           }
         }
       },
       child: BlocBuilder(
           bloc: _searchBloc,
           builder: (context, state) {
-            return Scaffold(
-                body: RefreshIndicator(
+            return RefreshIndicator(
               onRefresh: _onRefresh,
               child: LoadingOverlay(
                 color: Colors.white,
@@ -110,7 +108,7 @@ class _SearchUsersScreenState extends State<SearchUsersScreen> {
                         visible: _isEmpty,
                         child: Center(
                             child: Text(
-                                "Pencarian tidak ada, Harap perbaiki kata kunci."))),
+                                "Search does not exist, Please correct keywords."))),
                     ListView.builder(
                       controller: _scrollController,
                       itemBuilder: (context, index) {
@@ -119,45 +117,28 @@ class _SearchUsersScreenState extends State<SearchUsersScreen> {
                           child: Padding(
                             padding: const EdgeInsets.only(
                                 left: 16.0, right: 16.0, top: 8.0, bottom: 8.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 5,
-                                    blurRadius: 7,
-                                    offset: Offset(
-                                        0, 3), // changes position of shadow
-                                  ),
-                                ],
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5.0)),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: double.infinity,
-                                    height: size.height * 0.035,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black,
-                                      border: Border.all(
-                                          color: Colors.transparent,
-                                          width: 1.0),
-                                      borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(5.0),
-                                          topLeft: Radius.circular(5.0)),
-                                    ),
-                                    child: Center(
-                                      child: Text(_myDataUsers[index]['login'],
-                                          textAlign: TextAlign.center,
-                                          style:
-                                              TextStyle(color: Colors.white)),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        _myDataUsers[index]['avatar_url']),
+                                    radius: 35.0),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0),
+                                    child: Text(
+                                      _myDataUsers[index]['login'],
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: 18.0,
+                                          fontWeight: FontWeight.w700),
                                     ),
                                   ),
-                                ],
-                              ),
+                                )
+                              ],
                             ),
                           ),
                         );
@@ -167,7 +148,7 @@ class _SearchUsersScreenState extends State<SearchUsersScreen> {
                   ],
                 ),
               ),
-            ));
+            );
           }),
     );
   }

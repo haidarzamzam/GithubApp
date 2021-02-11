@@ -13,7 +13,7 @@ class SearchIssuesScreen extends StatefulWidget {
 
 class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
   SearchBloc _searchBloc;
-  List<dynamic> _myDataRepositories = List();
+  List<dynamic> _myDataIssues = List();
   ScrollController _scrollController;
   int pageCount = 1;
   bool _isLoading = true;
@@ -71,8 +71,8 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
               _isEmpty = false;
             }
             var data = jsonEncode(state.result.items);
-            var listRepositories = JsonDecoder().convert(data);
-            _myDataRepositories = listRepositories;
+            var listIssues = JsonDecoder().convert(data);
+            _myDataIssues = listIssues;
           } else if (state.page > 1) {
             if (state.result.items.isEmpty) {
               _isMax = true;
@@ -83,23 +83,22 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
                 _isEmpty = false;
               }
               var data = jsonEncode(state.result.items);
-              var listRepositories = JsonDecoder().convert(data);
-              _myDataRepositories.addAll(listRepositories);
+              var listIssues = JsonDecoder().convert(data);
+              _myDataIssues.addAll(listIssues);
             }
           }
         } else if (state is GetSearchIssuesFailedState) {
           _isLoading = false;
           print(state.message);
           if (state.message != null) {
-            ToastUtils.show("Silahkan diulang kembali");
+            ToastUtils.show("Please, try again");
           }
         }
       },
       child: BlocBuilder(
           bloc: _searchBloc,
           builder: (context, state) {
-            return Scaffold(
-                body: RefreshIndicator(
+            return RefreshIndicator(
               onRefresh: _onRefresh,
               child: LoadingOverlay(
                 color: Colors.white,
@@ -110,7 +109,7 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
                         visible: _isEmpty,
                         child: Center(
                             child: Text(
-                                "Pencarian tidak ada, Harap perbaiki kata kunci."))),
+                                "Search does not exist, Please correct keywords."))),
                     ListView.builder(
                       controller: _scrollController,
                       itemBuilder: (context, index) {
@@ -119,56 +118,67 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
                           child: Padding(
                             padding: const EdgeInsets.only(
                                 left: 16.0, right: 16.0, top: 8.0, bottom: 8.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 5,
-                                    blurRadius: 7,
-                                    offset: Offset(
-                                        0, 3), // changes position of shadow
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        _myDataIssues[index]['user']
+                                            ['avatar_url']),
+                                    radius: 35.0),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 8.0, right: 16.0),
+                                        child: Text(
+                                          _myDataIssues[index]['title'],
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.w700),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 8.0, right: 16.0),
+                                        child: Text(
+                                          _myDataIssues[index]['updated_at'],
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 8.0, top: 4.0),
+                                        child: Container(
+                                            decoration: BoxDecoration(
+                                                color: Colors.green,
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                            padding: const EdgeInsets.all(4.0),
+                                            child: Text(
+                                                _myDataIssues[index]['state'])),
+                                      )
+                                    ],
                                   ),
-                                ],
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5.0)),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: double.infinity,
-                                    height: size.height * 0.035,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black,
-                                      border: Border.all(
-                                          color: Colors.transparent,
-                                          width: 1.0),
-                                      borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(5.0),
-                                          topLeft: Radius.circular(5.0)),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                          _myDataRepositories[index]['title'],
-                                          textAlign: TextAlign.center,
-                                          style:
-                                              TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                )
+                              ],
                             ),
                           ),
                         );
                       },
-                      itemCount: _myDataRepositories.length,
+                      itemCount: _myDataIssues.length,
                     ),
                   ],
                 ),
               ),
-            ));
+            );
           }),
     );
   }

@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(10),
                     color: Colors.white,
                   ),
-                  child: Icon(Icons.settings, color: Colors.blue),
+                  child: Icon(Icons.tune, color: Colors.blue),
                 ),
               ),
             ],
