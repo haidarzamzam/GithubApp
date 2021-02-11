@@ -1,9 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_app/blocs/bloc_delegate.dart';
-import 'package:github_app/main.dart';
-import 'package:github_app/utils/end_point.dart';
 import 'package:github_app/utils/toast.dart';
 
 class App {
@@ -47,14 +44,4 @@ class App {
       return e;
     }));
   }
-}
-
-Future<Null> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  App.configure(apiBaseURL: Endpoint.baseURL, appTitle: 'Github App');
-
-  await App().init();
-
-  runApp(MyApp());
 }

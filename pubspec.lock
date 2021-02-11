@@ -90,6 +90,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.1"
+  flutter_stetho:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: master
+      resolved-ref: "9d3268e75937eeea2cfed8d0dbab387532067082"
+      url: "git://github.com/jasonlewicki/flutter_stetho.git"
+    source: git
+    version: "0.5.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -114,6 +123,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.1.4"
+  loading_overlay:
+    dependency: "direct main"
+    description:
+      name: loading_overlay
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.1"
   matcher:
     dependency: transitive
     description:

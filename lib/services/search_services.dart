@@ -10,7 +10,7 @@ Dio _dio = App().dio;
 Future<SearchRepositoriesResponse> getSearchRepositories(
     Map<String, dynamic> payload) async {
   Response response = await _dio.get(
-    Endpoint.listRepositories,
+    Endpoint.listSearchRepositories,
     queryParameters: {
       "q": payload['q'],
       "per_page": payload['per_page'],
@@ -27,7 +27,7 @@ Future<SearchRepositoriesResponse> getSearchRepositories(
 Future<SearchUsersResponse> getUsersRepositories(
     Map<String, dynamic> payload) async {
   Response response = await _dio.get(
-    Endpoint.listIssues,
+    Endpoint.listUsers,
     queryParameters: {
       "q": payload['q'],
       "per_page": payload['per_page'],
