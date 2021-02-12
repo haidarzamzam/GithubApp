@@ -8,6 +8,7 @@ import 'package:github_app/screens/menus/detail_menu_screen.dart';
 import 'package:github_app/utils/constants.dart';
 import 'package:github_app/utils/toast.dart';
 import 'package:github_app/utils/tools.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,6 +26,7 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
   bool _isMax = false;
   bool _isEmpty = false;
   bool _isSortIndex = false;
+  String date = "";
   String search = "doraemon";
   MaterialColor colorBadge;
   SharedPreferences _prefs = App().sharedPreferences;
@@ -157,6 +159,11 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
                         } else {
                           colorBadge = Colors.red;
                         }
+
+                        DateTime todayDate =
+                            DateTime.parse(_myDataIssues[index]['updated_at']);
+                        final DateFormat formatter = DateFormat('dd-MM-yyyy');
+                        date = formatter.format(todayDate);
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -201,7 +208,7 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
                                         padding: const EdgeInsets.only(
                                             left: 8.0, right: 16.0),
                                         child: Text(
-                                          _myDataIssues[index]['updated_at'],
+                                          date,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -281,9 +288,8 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
                                           q: search,
                                           perPage: "10",
                                           page: pageCount + 1,
-                                          type: _prefs.getString(
-                                              ConstansString
-                                                  .TYPE_SORT_ISSUES)));
+                                          type: _prefs.getString(ConstansString
+                                              .TYPE_SORT_ISSUES)));
                                     },
                                     color: HexColor(Settings['MainColor']),
                                     child: Icon(Icons.arrow_forward_ios,

@@ -8,6 +8,7 @@ import 'package:github_app/screens/menus/detail_menu_screen.dart';
 import 'package:github_app/utils/constants.dart';
 import 'package:github_app/utils/toast.dart';
 import 'package:github_app/utils/tools.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,6 +26,7 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
   bool _isMax = false;
   bool _isEmpty = false;
   bool _isSortIndex = false;
+  String date = "";
   String search = "doraemon";
   SharedPreferences _prefs = App().sharedPreferences;
 
@@ -153,6 +155,11 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
                     ListView.builder(
                       controller: _scrollController,
                       itemBuilder: (context, index) {
+                        DateTime todayDate = DateTime.parse(
+                            _myDataRepositories[index]['created_at']);
+                        final DateFormat formatter = DateFormat('dd-MM-yyyy');
+                        date = formatter.format(todayDate);
+
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -175,7 +182,7 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
                                 CircleAvatar(
                                     backgroundImage: NetworkImage(
                                         _myDataRepositories[index]['owner']
-                                            ['avatar_url']),
+                                        ['avatar_url']),
                                     radius: 35.0),
                                 Expanded(
                                   child: Padding(
@@ -183,7 +190,7 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
                                         horizontal: 16.0),
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           _myDataRepositories[index]['name'],
@@ -194,8 +201,7 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
                                               fontWeight: FontWeight.w700),
                                         ),
                                         Text(
-                                          _myDataRepositories[index]
-                                              ['created_at'],
+                                          date,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
