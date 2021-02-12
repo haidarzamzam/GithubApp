@@ -64,3 +64,9 @@ class DoSwitchSortState extends SearchState {
 
   DoSwitchSortState({this.api, this.type});
 }
+
+class DoGetDataState extends SearchState {
+  final bool isLoading;
+
+  DoGetDataState({this.isLoading});
+}

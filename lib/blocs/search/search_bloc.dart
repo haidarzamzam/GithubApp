@@ -24,6 +24,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       yield* _getSearchIssues(event);
     } else if (event is DoSwitchSortEvent) {
       yield* _doSwitchSort(event);
+    } else if (event is DoGetDataEvent) {
+      yield* _doGetData(event);
     }
   }
 
@@ -47,7 +49,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           q: event.q.trim(),
           type: event.type);
     } catch (err) {
-      yield GetSearchRepositoriesFailedState(message: err.toString());
+      yield GetSearchRepositoriesFailedState(
+          message: err?.response?.statusCode?.toString());
     }
   }
 
@@ -70,7 +73,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           q: event.q.trim(),
           type: event.type);
     } catch (err) {
-      yield GetSearchUsersFailedState(message: err.toString());
+      yield GetSearchUsersFailedState(
+          message: err?.response?.statusCode?.toString());
     }
   }
 
@@ -93,7 +97,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           q: event.q.trim(),
           type: event.type);
     } catch (err) {
-      yield GetSearchIssuesFailedState(message: err.toString());
+      yield GetSearchIssuesFailedState(
+          message: err?.response?.statusCode?.toString());
     }
   }
 
@@ -101,5 +106,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     yield SearchInitial();
 
     yield DoSwitchSortState(api: event.api, type: event.type);
+  }
+
+  Stream<SearchState> _doGetData(DoGetDataEvent event) async* {
+    yield SearchInitial();
+
+    yield DoGetDataState(isLoading: event.isLoading);
   }
 }

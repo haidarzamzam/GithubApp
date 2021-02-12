@@ -52,3 +52,12 @@ class DoSwitchSortEvent extends SearchEvent {
   @override
   String toString() => 'DoSwitchSortEvent';
 }
+
+class DoGetDataEvent extends SearchEvent {
+  final bool isLoading;
+
+  DoGetDataEvent({this.isLoading});
+
+  @override
+  String toString() => 'DoGetDataEvent';
+}

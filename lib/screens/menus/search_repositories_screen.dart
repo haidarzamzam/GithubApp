@@ -6,10 +6,10 @@ import 'package:github_app/app.dart';
 import 'package:github_app/blocs/search/bloc.dart';
 import 'package:github_app/screens/menus/detail_menu_screen.dart';
 import 'package:github_app/utils/constants.dart';
+import 'package:github_app/utils/dialog.dart';
 import 'package:github_app/utils/toast.dart';
 import 'package:github_app/utils/tools.dart';
 import 'package:intl/intl.dart';
-import 'package:loading_overlay/loading_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchRepositoryScreen extends StatefulWidget {
@@ -43,6 +43,7 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        _searchBloc.add(DoGetDataEvent(isLoading: true));
         _searchBloc.add(GetSearchRepositoriesEvent(
             q: search,
             perPage: "10",
@@ -67,6 +68,7 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
               ToastUtils.show("No more data");
             } else {
               pageCount = pageCount + 1;
+              _searchBloc.add(DoGetDataEvent(isLoading: true));
               _searchBloc.add(GetSearchRepositoriesEvent(
                   q: search,
                   perPage: "10",
@@ -84,9 +86,10 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
   Widget build(BuildContext context) {
     return BlocListener(
       bloc: _searchBloc,
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is GetSearchRepositoriesSuccessState) {
           _isLoading = false;
+          _searchBloc.add(DoGetDataEvent(isLoading: false));
           search = state.q;
           setState(() {
             pageCount = state.page;
@@ -123,8 +126,14 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
           }
         } else if (state is GetSearchRepositoriesFailedState) {
           _isLoading = false;
+          _searchBloc.add(DoGetDataEvent(isLoading: false));
           print(state.message);
-          if (state.message != null) {
+          if (state.message == "403") {
+            _searchBloc.add(DoGetDataEvent(isLoading: false));
+            LoadingDialogWidget.showLoading(context);
+            await Future.delayed(Duration(seconds: 20));
+            Navigator.pop(context);
+          } else {
             ToastUtils.show("Please, try again");
           }
         } else if (state is DoSwitchSortState) {
@@ -142,161 +151,160 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
           builder: (context, state) {
             return RefreshIndicator(
               onRefresh: _onRefresh,
-              child: LoadingOverlay(
-                color: Colors.white,
-                isLoading: _isLoading,
-                child: Stack(
-                  children: [
-                    Visibility(
-                        visible: _isEmpty,
-                        child: Center(
-                            child: Text(
-                                "Search does not exist, Please correct keywords."))),
-                    ListView.builder(
-                      controller: _scrollController,
-                      itemBuilder: (context, index) {
-                        DateTime todayDate = DateTime.parse(
-                            _myDataRepositories[index]['created_at']);
-                        final DateFormat formatter = DateFormat('dd-MM-yyyy');
-                        date = formatter.format(todayDate);
+              child: Stack(
+                children: [
+                  Visibility(
+                      visible: _isEmpty,
+                      child: Center(
+                          child: Text(
+                              "Search does not exist, Please correct keywords."))),
+                  ListView.builder(
+                    controller: _scrollController,
+                    itemBuilder: (context, index) {
+                      DateTime todayDate = DateTime.parse(
+                          _myDataRepositories[index]['created_at']);
+                      final DateFormat formatter = DateFormat('dd-MM-yyyy');
+                      date = formatter.format(todayDate);
 
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => DetailMenuScreen(
-                                        url: _myDataRepositories[index]
-                                            ['html_url'],
-                                        title: _myDataRepositories[index]
-                                            ['name'],
-                                      )),
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 16.0, right: 16.0, top: 8.0, bottom: 8.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CircleAvatar(
-                                    backgroundImage: NetworkImage(
-                                        _myDataRepositories[index]['owner']
-                                        ['avatar_url']),
-                                    radius: 35.0),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          _myDataRepositories[index]['name'],
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                              fontSize: 18.0,
-                                              fontWeight: FontWeight.w700),
-                                        ),
-                                        Text(
-                                          date,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        Row(
-                                          children: [
-                                            Icon(Icons.star_border_outlined),
-                                            Text(
-                                                "${_myDataRepositories[index]['stargazers_count']}"),
-                                            SizedBox(width: 8.0),
-                                            Icon(Icons.remove_red_eye_outlined),
-                                            Text(
-                                                "${_myDataRepositories[index]['watchers_count']}"),
-                                            SizedBox(width: 8.0),
-                                            Icon(Icons.usb),
-                                            Text(
-                                                "${_myDataRepositories[index]['forks_count']}")
-                                          ],
-                                        )
-                                      ],
-                                    ),
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    DetailMenuScreen(
+                                      url: _myDataRepositories[index]
+                                      ['html_url'],
+                                      title: _myDataRepositories[index]
+                                      ['name'],
+                                    )),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              left: 16.0, right: 16.0, top: 8.0, bottom: 8.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                      _myDataRepositories[index]['owner']
+                                      ['avatar_url']),
+                                  radius: 35.0),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _myDataRepositories[index]['name'],
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                      Text(
+                                        date,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.star_border_outlined),
+                                          Text(
+                                              "${_myDataRepositories[index]['stargazers_count']}"),
+                                          SizedBox(width: 8.0),
+                                          Icon(Icons.remove_red_eye_outlined),
+                                          Text(
+                                              "${_myDataRepositories[index]['watchers_count']}"),
+                                          SizedBox(width: 8.0),
+                                          Icon(Icons.usb),
+                                          Text(
+                                              "${_myDataRepositories[index]['forks_count']}")
+                                        ],
+                                      )
+                                    ],
                                   ),
-                                )
-                              ],
-                            ),
+                                ),
+                              )
+                            ],
                           ),
-                        );
-                      },
-                      itemCount: _myDataRepositories.length,
-                    ),
-                    Visibility(
-                        visible: _isSortIndex,
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                            color: Colors.black38,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  MaterialButton(
-                                    onPressed: () {
-                                      if (pageCount == 1) {
-                                        ToastUtils.show("Already early limit");
-                                      } else {
-                                        _isLoading = true;
-                                        _searchBloc.add(
-                                            GetSearchRepositoriesEvent(
-                                                q: search,
-                                                perPage: "10",
-                                                page: pageCount - 1,
-                                                type: _prefs.getString(
-                                                    ConstansString
-                                                        .TYPE_SORT_REPOSITORIES)));
-                                      }
-                                    },
-                                    color: HexColor(Settings['MainColor']),
-                                    child: Icon(
-                                      Icons.arrow_back_ios,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  SizedBox(width: 14.0),
-                                  Text(
-                                    pageCount.toString(),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 24.0,
-                                        color: Colors.white),
-                                  ),
-                                  SizedBox(width: 14.0),
-                                  MaterialButton(
-                                    onPressed: () {
+                        ),
+                      );
+                    },
+                    itemCount: _myDataRepositories.length,
+                  ),
+                  Visibility(
+                      visible: _isSortIndex,
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                          color: Colors.black38,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                MaterialButton(
+                                  onPressed: () {
+                                    if (pageCount == 1) {
+                                      ToastUtils.show("Already early limit");
+                                    } else {
                                       _isLoading = true;
+                                      _searchBloc.add(
+                                          DoGetDataEvent(isLoading: true));
                                       _searchBloc.add(
                                           GetSearchRepositoriesEvent(
                                               q: search,
                                               perPage: "10",
-                                              page: pageCount + 1,
+                                              page: pageCount - 1,
                                               type: _prefs.getString(
                                                   ConstansString
                                                       .TYPE_SORT_REPOSITORIES)));
-                                    },
-                                    color: HexColor(Settings['MainColor']),
-                                    child: Icon(Icons.arrow_forward_ios,
-                                        color: Colors.white),
+                                    }
+                                  },
+                                  color: HexColor(Settings['MainColor']),
+                                  child: Icon(
+                                    Icons.arrow_back_ios,
+                                    color: Colors.white,
                                   ),
-                                ],
-                              ),
+                                ),
+                                SizedBox(width: 14.0),
+                                Text(
+                                  pageCount.toString(),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 24.0,
+                                      color: Colors.white),
+                                ),
+                                SizedBox(width: 14.0),
+                                MaterialButton(
+                                  onPressed: () {
+                                    _isLoading = true;
+                                    _searchBloc.add(
+                                        DoGetDataEvent(isLoading: true));
+                                    _searchBloc.add(GetSearchRepositoriesEvent(
+                                        q: search,
+                                        perPage: "10",
+                                        page: pageCount + 1,
+                                        type: _prefs.getString(ConstansString
+                                            .TYPE_SORT_REPOSITORIES)));
+                                  },
+                                  color: HexColor(Settings['MainColor']),
+                                  child: Icon(Icons.arrow_forward_ios,
+                                      color: Colors.white),
+                                ),
+                              ],
                             ),
                           ),
-                        )),
-                  ],
-                ),
+                        ),
+                      )),
+                ],
               ),
             );
           }),
@@ -306,6 +314,7 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
   Future<Null> _onRefresh() async {
     pageCount = 1;
     _isMax = false;
+    _searchBloc.add(DoGetDataEvent(isLoading: true));
     _searchBloc.add(GetSearchRepositoriesEvent(
         q: search,
         perPage: "10",

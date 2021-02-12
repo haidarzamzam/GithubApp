@@ -8,6 +8,7 @@ import 'package:github_app/screens/menus/search_users_screen.dart';
 import 'package:github_app/utils/constants.dart';
 import 'package:github_app/utils/toast.dart';
 import 'package:github_app/utils/tools.dart';
+import 'package:loading_overlay/loading_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   SearchBloc _searchBloc;
+  bool _isLoading = true;
   int indexTab = 0;
   String search = "doraemon";
   String labelSearch = "Search Users. . .";
@@ -30,154 +32,181 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: HexColor(Settings['MainColor']),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white,
-                      ),
-                      height: 40,
-                      child: TextField(
-                        textAlignVertical: TextAlignVertical.center,
-                        controller: searchTextController,
-                        autocorrect: true,
-                        onSubmitted: (value) {
-                          if (value.toString() == "") {
-                            ToastUtils.show("Please fill the entry");
-                          } else {
-                            search = value.toString();
-                            if (indexTab == 0) {
-                              _searchBloc.add(GetSearchUsersEvent(
-                                  q: search, perPage: "10", page: 1));
-                            } else if (indexTab == 1) {
-                              _searchBloc.add(GetSearchIssuesEvent(
-                                  q: search, perPage: "10", page: 1));
-                            } else if (indexTab == 2) {
-                              _searchBloc.add(GetSearchRepositoriesEvent(
-                                  q: search, perPage: "10", page: 1));
-                            }
-                          }
-                        },
-                        textInputAction: TextInputAction.search,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: labelSearch,
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: HexColor(Settings['MainColor']),
+    return BlocListener(
+      bloc: _searchBloc,
+      listener: (context, state) {
+        if (state is DoGetDataState) {
+          _isLoading = state.isLoading;
+        }
+      },
+      child: BlocBuilder(
+          bloc: _searchBloc,
+          builder: (context, state) {
+            return LoadingOverlay(
+              isLoading: _isLoading,
+              child: DefaultTabController(
+                length: 3,
+                child: Scaffold(
+                  appBar: AppBar(
+                    automaticallyImplyLeading: false,
+                    backgroundColor: HexColor(Settings['MainColor']),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 16),
+                            child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.white,
+                                ),
+                                height: 40,
+                                child: TextField(
+                                  textAlignVertical: TextAlignVertical.center,
+                                  controller: searchTextController,
+                                  autocorrect: true,
+                                  onSubmitted: (value) {
+                                    if (value.toString() == "") {
+                                      ToastUtils.show("Please fill the entry");
+                                    } else {
+                                      search = value.toString();
+                                      if (indexTab == 0) {
+                                        _searchBloc.add(
+                                            DoGetDataEvent(isLoading: true));
+                                        _searchBloc.add(GetSearchUsersEvent(
+                                            q: search, perPage: "10", page: 1));
+                                      } else if (indexTab == 1) {
+                                        _searchBloc.add(
+                                            DoGetDataEvent(isLoading: true));
+                                        _searchBloc.add(GetSearchIssuesEvent(
+                                            q: search, perPage: "10", page: 1));
+                                      } else if (indexTab == 2) {
+                                        _searchBloc.add(
+                                            DoGetDataEvent(isLoading: true));
+                                        _searchBloc.add(
+                                            GetSearchRepositoriesEvent(
+                                                q: search,
+                                                perPage: "10",
+                                                page: 1));
+                                      }
+                                    }
+                                  },
+                                  textInputAction: TextInputAction.search,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: labelSearch,
+                                    prefixIcon: Icon(
+                                      Icons.search,
+                                      color: HexColor(Settings['MainColor']),
+                                    ),
+                                    hintStyle: TextStyle(color: Colors.grey),
+                                  ),
+                                )),
                           ),
-                          hintStyle: TextStyle(color: Colors.grey),
                         ),
-                      )),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  _showModalBottomSheet(indexTab);
-                },
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.white,
+                        GestureDetector(
+                          onTap: () {
+                            _showModalBottomSheet(indexTab);
+                          },
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.white,
+                            ),
+                            child: Icon(Icons.tune,
+                                color: HexColor(Settings['MainColor'])),
+                          ),
+                        ),
+                      ],
+                    ),
+                    bottom: PreferredSize(
+                      preferredSize: new Size(double.infinity, 50.0),
+                      child: Container(
+                        height: 50.0,
+                        padding: EdgeInsets.only(bottom: 4.0),
+                        child: TabBar(
+                            labelPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                            isScrollable: false,
+                            labelStyle: TextStyle(
+                                fontSize: 16.0, fontFamily: 'Montserrat'),
+                            labelColor: Colors.white,
+                            unselectedLabelColor: Colors.white,
+                            indicatorSize: TabBarIndicatorSize.label,
+                            indicatorColor: Colors.white,
+                            onTap: (index) {
+                              if (index == 0) {
+                                setState(() {
+                                  labelSearch = "Search Users. . .";
+                                  indexTab = index;
+                                });
+                              } else if (index == 1) {
+                                setState(() {
+                                  labelSearch = "Search Issues. . .";
+                                  indexTab = index;
+                                });
+                              } else if (index == 2) {
+                                setState(() {
+                                  labelSearch = "Search Repository. . .";
+                                  indexTab = index;
+                                });
+                              }
+                            },
+                            tabs: [
+                              Tab(
+                                child: Container(
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12.0),
+                                      child: FittedBox(child: Text("Users")),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Tab(
+                                child: Container(
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12.0),
+                                      child: FittedBox(child: Text("Issues")),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Tab(
+                                child: Container(
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12.0),
+                                      child: FittedBox(
+                                          child: Text("Repositories")),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ]),
+                      ),
+                    ),
                   ),
-                  child:
-                      Icon(Icons.tune, color: HexColor(Settings['MainColor'])),
+                  body: TabBarView(
+                      physics: NeverScrollableScrollPhysics(),
+                      children: [
+                        SearchUsersScreen(),
+                        SearchIssuesScreen(),
+                        SearchRepositoryScreen(),
+                      ]),
                 ),
               ),
-            ],
-          ),
-          bottom: PreferredSize(
-            preferredSize: new Size(double.infinity, 50.0),
-            child: Container(
-              height: 50.0,
-              padding: EdgeInsets.only(bottom: 4.0),
-              child: TabBar(
-                  labelPadding: EdgeInsets.symmetric(horizontal: 4.0),
-                  isScrollable: false,
-                  labelStyle:
-                  TextStyle(fontSize: 16.0, fontFamily: 'Montserrat'),
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.white,
-                  indicatorSize: TabBarIndicatorSize.label,
-                  indicatorColor: Colors.white,
-                  onTap: (index) {
-                    if (index == 0) {
-                      setState(() {
-                        labelSearch = "Search Users. . .";
-                        indexTab = index;
-                      });
-                    } else if (index == 1) {
-                      setState(() {
-                        labelSearch = "Search Issues. . .";
-                        indexTab = index;
-                      });
-                    } else if (index == 2) {
-                      setState(() {
-                        labelSearch = "Search Repository. . .";
-                        indexTab = index;
-                      });
-                    }
-                  },
-                  tabs: [
-                    Tab(
-                      child: Container(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: FittedBox(child: Text("Users")),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Tab(
-                      child: Container(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Padding(
-                            padding:
-                            const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: FittedBox(child: Text("Issues")),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Tab(
-                      child: Container(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Padding(
-                            padding:
-                            const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: FittedBox(child: Text("Repositories")),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ]),
-            ),
-          ),
-        ),
-        body: TabBarView(physics: NeverScrollableScrollPhysics(), children: [
-          SearchUsersScreen(),
-          SearchIssuesScreen(),
-          SearchRepositoryScreen(),
-        ]),
-      ),
+            );
+          }),
     );
   }
 
@@ -255,9 +284,7 @@ class _SettingsTypeSortState extends State<SettingsTypeSort> {
         color: Color(0xFF737373),
         child: Container(
             decoration: BoxDecoration(
-              color: Theme
-                  .of(context)
-                  .canvasColor,
+              color: Theme.of(context).canvasColor,
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(10),
                 topRight: const Radius.circular(10),
@@ -332,7 +359,8 @@ class _SettingsTypeSortState extends State<SettingsTypeSort> {
                             ),
                             child: Text(
                               'Apply',
-                              style: TextStyle(fontSize: 16.0,
+                              style: TextStyle(
+                                  fontSize: 16.0,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white),
                             ),
@@ -341,8 +369,9 @@ class _SettingsTypeSortState extends State<SettingsTypeSort> {
                                 if (widget.indexTab == 0) {
                                   _searchBloc.add(DoSwitchSortEvent(
                                       type: "loading", api: "users"));
-                                  _prefs.setString(ConstansString
-                                      .TYPE_SORT_USERS, "loading");
+                                  _prefs.setString(
+                                      ConstansString.TYPE_SORT_USERS,
+                                      "loading");
                                 } else if (widget.indexTab == 1) {
                                   _searchBloc.add(DoSwitchSortEvent(
                                       type: "loading", api: "issues"));
