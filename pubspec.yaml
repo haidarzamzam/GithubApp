@@ -33,6 +33,7 @@ dependencies:
       url: git://github.com/jasonlewicki/flutter_stetho.git
       ref: master
   webview_flutter: ^1.0.7
+  shared_preferences: ^0.5.8
 
 
   # The following adds the Cupertino Icons font to your application.

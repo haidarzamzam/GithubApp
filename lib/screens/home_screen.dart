@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:github_app/app.dart';
 import 'package:github_app/blocs/search/bloc.dart';
 import 'package:github_app/screens/menus/search_issues_screen.dart';
 import 'package:github_app/screens/menus/search_repositories_screen.dart';
@@ -7,6 +8,7 @@ import 'package:github_app/screens/menus/search_users_screen.dart';
 import 'package:github_app/utils/constants.dart';
 import 'package:github_app/utils/toast.dart';
 import 'package:github_app/utils/tools.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -82,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               GestureDetector(
                 onTap: () {
-                  _showModalBottomSheet();
+                  _showModalBottomSheet(indexTab);
                 },
                 child: Container(
                   width: 40,
@@ -179,21 +181,27 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showModalBottomSheet() {
+  void _showModalBottomSheet(int indexTab) {
     showModalBottomSheet(
         context: context,
         builder: (context) {
-          return SettingsTypeSort();
+          return SettingsTypeSort(indexTab: indexTab);
         });
   }
 }
 
 class SettingsTypeSort extends StatefulWidget {
+  final int indexTab;
+
+  const SettingsTypeSort({Key key, this.indexTab}) : super(key: key);
+
   @override
   _SettingsTypeSortState createState() => _SettingsTypeSortState();
 }
 
 class _SettingsTypeSortState extends State<SettingsTypeSort> {
+  SearchBloc _searchBloc;
+  SharedPreferences _prefs = App().sharedPreferences;
   int _radioValueTypeSort = 0;
 
   void _handleRadioValueChangeSort(int value) {
@@ -202,23 +210,48 @@ class _SettingsTypeSortState extends State<SettingsTypeSort> {
 
       switch (_radioValueTypeSort) {
         case 0:
+          _radioValueTypeSort = 0;
           break;
         case 1:
+          _radioValueTypeSort = 1;
           break;
       }
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+    _searchBloc = BlocProvider.of<SearchBloc>(context);
+    if (widget.indexTab == 0) {
+      if (_prefs.getString(ConstansString.TYPE_SORT_USERS) == "loading") {
+        _radioValueTypeSort = 0;
+      } else if (_prefs.getString(ConstansString.TYPE_SORT_USERS) == "index") {
+        _radioValueTypeSort = 1;
+      }
+    } else if (widget.indexTab == 1) {
+      if (_prefs.getString(ConstansString.TYPE_SORT_ISSUES) == "loading") {
+        _radioValueTypeSort = 0;
+      } else if (_prefs.getString(ConstansString.TYPE_SORT_ISSUES) == "index") {
+        _radioValueTypeSort = 1;
+      }
+    }
+    if (widget.indexTab == 2) {
+      if (_prefs.getString(ConstansString.TYPE_SORT_REPOSITORIES) ==
+          "loading") {
+        _radioValueTypeSort = 0;
+      } else if (_prefs.getString(ConstansString.TYPE_SORT_REPOSITORIES) ==
+          "index") {
+        _radioValueTypeSort = 1;
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery
-        .of(context)
-        .size;
+    Size size = MediaQuery.of(context).size;
     return Container(
-        height: MediaQuery
-            .of(context)
-            .size
-            .height * 0.35,
+        height: MediaQuery.of(context).size.height * 0.35,
         color: Color(0xFF737373),
         child: Container(
             decoration: BoxDecoration(
@@ -304,6 +337,44 @@ class _SettingsTypeSortState extends State<SettingsTypeSort> {
                                   color: Colors.white),
                             ),
                             onPressed: () {
+                              if (_radioValueTypeSort == 0) {
+                                if (widget.indexTab == 0) {
+                                  _searchBloc.add(DoSwitchSortEvent(
+                                      type: "loading", api: "users"));
+                                  _prefs.setString(ConstansString
+                                      .TYPE_SORT_USERS, "loading");
+                                } else if (widget.indexTab == 1) {
+                                  _searchBloc.add(DoSwitchSortEvent(
+                                      type: "loading", api: "issues"));
+                                  _prefs.setString(
+                                      ConstansString.TYPE_SORT_ISSUES,
+                                      "loading");
+                                } else if (widget.indexTab == 2) {
+                                  _searchBloc.add(DoSwitchSortEvent(
+                                      type: "loading", api: "repositories"));
+                                  _prefs.setString(
+                                      ConstansString.TYPE_SORT_REPOSITORIES,
+                                      "loading");
+                                }
+                              } else if (_radioValueTypeSort == 1) {
+                                if (widget.indexTab == 0) {
+                                  _searchBloc.add(DoSwitchSortEvent(
+                                      type: "index", api: "users"));
+                                  _prefs.setString(
+                                      ConstansString.TYPE_SORT_USERS, "index");
+                                } else if (widget.indexTab == 1) {
+                                  _searchBloc.add(DoSwitchSortEvent(
+                                      type: "index", api: "issues"));
+                                  _prefs.setString(
+                                      ConstansString.TYPE_SORT_ISSUES, "index");
+                                } else if (widget.indexTab == 2) {
+                                  _searchBloc.add(DoSwitchSortEvent(
+                                      type: "index", api: "repositories"));
+                                  _prefs.setString(
+                                      ConstansString.TYPE_SORT_REPOSITORIES,
+                                      "index");
+                                }
+                              }
                               Navigator.pop(context);
                             }),
                       ),

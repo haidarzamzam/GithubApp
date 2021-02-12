@@ -11,8 +11,9 @@ class GetSearchRepositoriesEvent extends SearchEvent {
   final String q;
   final String perPage;
   final int page;
+  final String type;
 
-  GetSearchRepositoriesEvent({this.q, this.perPage, this.page});
+  GetSearchRepositoriesEvent({this.q, this.perPage, this.page, this.type});
 
   @override
   String toString() => 'GetSearchRepositoriesEvent';
@@ -22,8 +23,9 @@ class GetSearchUsersEvent extends SearchEvent {
   final String q;
   final String perPage;
   final int page;
+  final String type;
 
-  GetSearchUsersEvent({this.q, this.perPage, this.page});
+  GetSearchUsersEvent({this.q, this.perPage, this.page, this.type});
 
   @override
   String toString() => 'GetSearchUsersEvent';
@@ -33,9 +35,20 @@ class GetSearchIssuesEvent extends SearchEvent {
   final String q;
   final String perPage;
   final int page;
+  final String type;
 
-  GetSearchIssuesEvent({this.q, this.perPage, this.page});
+  GetSearchIssuesEvent({this.q, this.perPage, this.page, this.type});
 
   @override
   String toString() => 'GetSearchIssuesEvent';
+}
+
+class DoSwitchSortEvent extends SearchEvent {
+  final String api;
+  final String type;
+
+  DoSwitchSortEvent({this.api, this.type});
+
+  @override
+  String toString() => 'DoSwitchSortEvent';
 }

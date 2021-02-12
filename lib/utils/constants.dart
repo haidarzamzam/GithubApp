@@ -5,3 +5,9 @@ const Settings = {
   'Steel': '#808285',
   'Ice': '#e5e6e6',
 };
+
+class ConstansString {
+  static const String TYPE_SORT_USERS = 'TYPE_SORT_USERS';
+  static const String TYPE_SORT_ISSUES = 'TYPE_SORT_ISSUES';
+  static const String TYPE_SORT_REPOSITORIES = 'TYPE_SORT_REPOSITORIES';
+}

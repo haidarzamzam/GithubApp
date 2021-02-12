@@ -2,10 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:github_app/app.dart';
 import 'package:github_app/blocs/search/bloc.dart';
 import 'package:github_app/screens/menus/detail_menu_screen.dart';
+import 'package:github_app/utils/constants.dart';
 import 'package:github_app/utils/toast.dart';
+import 'package:github_app/utils/tools.dart';
 import 'package:loading_overlay/loading_overlay.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchRepositoryScreen extends StatefulWidget {
   @override
@@ -20,17 +24,28 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
   bool _isLoading = true;
   bool _isMax = false;
   bool _isEmpty = false;
+  bool _isSortIndex = false;
   String search = "doraemon";
+  SharedPreferences _prefs = App().sharedPreferences;
 
   @override
   void initState() {
     _scrollController = new ScrollController(initialScrollOffset: 5.0)
       ..addListener(_scrollListener);
     _searchBloc = BlocProvider.of<SearchBloc>(context);
+    if (_prefs.getString(ConstansString.TYPE_SORT_REPOSITORIES) == "loading") {
+      _isSortIndex = false;
+    } else if (_prefs.getString(ConstansString.TYPE_SORT_REPOSITORIES) ==
+        "index") {
+      _isSortIndex = true;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        _searchBloc
-            .add(GetSearchRepositoriesEvent(q: search, perPage: "10", page: 1));
+        _searchBloc.add(GetSearchRepositoriesEvent(
+            q: search,
+            perPage: "10",
+            page: 1,
+            type: _prefs.getString(ConstansString.TYPE_SORT_REPOSITORIES)));
       }
     });
 
@@ -38,22 +53,28 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
   }
 
   _scrollListener() {
-    if (_scrollController.offset >=
-            _scrollController.position.maxScrollExtent &&
-        !_scrollController.position.outOfRange) {
-      setState(() {
-        _isLoading = true;
-        if (_isLoading) {
-          if (_isMax) {
-            _isLoading = false;
-            ToastUtils.show("No more data");
-          } else {
-            pageCount = pageCount + 1;
-            _searchBloc.add(GetSearchRepositoriesEvent(
-                q: search, perPage: "10", page: pageCount));
+    if (!_isSortIndex) {
+      if (_scrollController.offset >=
+              _scrollController.position.maxScrollExtent &&
+          !_scrollController.position.outOfRange) {
+        setState(() {
+          _isLoading = true;
+          if (_isLoading) {
+            if (_isMax) {
+              _isLoading = false;
+              ToastUtils.show("No more data");
+            } else {
+              pageCount = pageCount + 1;
+              _searchBloc.add(GetSearchRepositoriesEvent(
+                  q: search,
+                  perPage: "10",
+                  page: pageCount,
+                  type:
+                      _prefs.getString(ConstansString.TYPE_SORT_REPOSITORIES)));
+            }
           }
-        }
-      });
+        });
+      }
     }
   }
 
@@ -65,19 +86,16 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
         if (state is GetSearchRepositoriesSuccessState) {
           _isLoading = false;
           search = state.q;
-          if (state.page == 1) {
-            if (state.result.items.isEmpty) {
-              _isEmpty = true;
-            } else {
-              _isEmpty = false;
-            }
+          setState(() {
+            pageCount = state.page;
+          });
+
+          if (_isSortIndex) {
             var data = jsonEncode(state.result.items);
-            var listRepositories = JsonDecoder().convert(data);
-            _myDataRepositories = listRepositories;
-          } else if (state.page > 1) {
-            if (state.result.items.isEmpty) {
-              _isMax = true;
-            } else {
+            var listUsers = JsonDecoder().convert(data);
+            _myDataRepositories = listUsers;
+          } else {
+            if (state.page == 1) {
               if (state.result.items.isEmpty) {
                 _isEmpty = true;
               } else {
@@ -85,7 +103,20 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
               }
               var data = jsonEncode(state.result.items);
               var listRepositories = JsonDecoder().convert(data);
-              _myDataRepositories.addAll(listRepositories);
+              _myDataRepositories = listRepositories;
+            } else if (state.page > 1) {
+              if (state.result.items.isEmpty) {
+                _isMax = true;
+              } else {
+                if (state.result.items.isEmpty) {
+                  _isEmpty = true;
+                } else {
+                  _isEmpty = false;
+                }
+                var data = jsonEncode(state.result.items);
+                var listRepositories = JsonDecoder().convert(data);
+                _myDataRepositories.addAll(listRepositories);
+              }
             }
           }
         } else if (state is GetSearchRepositoriesFailedState) {
@@ -93,6 +124,14 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
           print(state.message);
           if (state.message != null) {
             ToastUtils.show("Please, try again");
+          }
+        } else if (state is DoSwitchSortState) {
+          if (state.api == "repositories") {
+            if (state.type == "loading") {
+              _isSortIndex = false;
+            } else if (state.type == "index") {
+              _isSortIndex = true;
+            }
           }
         }
       },
@@ -186,6 +225,70 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
                       },
                       itemCount: _myDataRepositories.length,
                     ),
+                    Visibility(
+                        visible: _isSortIndex,
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Container(
+                            color: Colors.black38,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  MaterialButton(
+                                    onPressed: () {
+                                      if (pageCount == 1) {
+                                        ToastUtils.show("Already early limit");
+                                      } else {
+                                        _isLoading = true;
+                                        _searchBloc.add(
+                                            GetSearchRepositoriesEvent(
+                                                q: search,
+                                                perPage: "10",
+                                                page: pageCount - 1,
+                                                type: _prefs.getString(
+                                                    ConstansString
+                                                        .TYPE_SORT_REPOSITORIES)));
+                                      }
+                                    },
+                                    color: HexColor(Settings['MainColor']),
+                                    child: Icon(
+                                      Icons.arrow_back_ios,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(width: 14.0),
+                                  Text(
+                                    pageCount.toString(),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 24.0,
+                                        color: Colors.white),
+                                  ),
+                                  SizedBox(width: 14.0),
+                                  MaterialButton(
+                                    onPressed: () {
+                                      _isLoading = true;
+                                      _searchBloc.add(
+                                          GetSearchRepositoriesEvent(
+                                              q: search,
+                                              perPage: "10",
+                                              page: pageCount + 1,
+                                              type: _prefs.getString(
+                                                  ConstansString
+                                                      .TYPE_SORT_REPOSITORIES)));
+                                    },
+                                    color: HexColor(Settings['MainColor']),
+                                    child: Icon(Icons.arrow_forward_ios,
+                                        color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )),
                   ],
                 ),
               ),
@@ -197,8 +300,11 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
   Future<Null> _onRefresh() async {
     pageCount = 1;
     _isMax = false;
-    _searchBloc
-        .add(GetSearchRepositoriesEvent(q: search, perPage: "10", page: 1));
+    _searchBloc.add(GetSearchRepositoriesEvent(
+        q: search,
+        perPage: "10",
+        page: 1,
+        type: _prefs.getString(ConstansString.TYPE_SORT_REPOSITORIES)));
     return;
   }
 }

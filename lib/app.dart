@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_app/blocs/bloc_delegate.dart';
 import 'package:github_app/utils/toast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class App {
   final String apiBaseURL;
@@ -13,6 +14,8 @@ class App {
     _instance = this;
   }
 
+  SharedPreferences sharedPreferences;
+
   factory App() {
     if (_instance == null) {
       throw UnimplementedError("App must be configured first.");
@@ -22,6 +25,8 @@ class App {
   }
 
   Future<Null> init() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+
     // configure bloc delegate
     BlocSupervisor.delegate = SimpleBlocDelegate();
 
