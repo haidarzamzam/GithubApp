@@ -38,6 +38,9 @@ class _SearchUsersScreenState extends State<SearchUsersScreen> {
     } else if (_prefs.getString(ConstansString.TYPE_SORT_USERS) == "index") {
       _isSortIndex = true;
     }
+    if (_prefs.getString(ConstansString.KEYWORD_USERS) != null) {
+      search = _prefs.getString(ConstansString.KEYWORD_USERS);
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _searchBloc.add(DoGetDataEvent(isLoading: true));
@@ -126,8 +129,14 @@ class _SearchUsersScreenState extends State<SearchUsersScreen> {
           if (state.message == "403") {
             _searchBloc.add(DoGetDataEvent(isLoading: false));
             LoadingDialogWidget.showLoading(context);
-            await Future.delayed(Duration(seconds: 20));
+            await Future.delayed(Duration(seconds: 30));
             Navigator.pop(context);
+            _searchBloc.add(DoGetDataEvent(isLoading: true));
+            _searchBloc.add(GetSearchUsersEvent(
+                q: search,
+                perPage: "10",
+                page: pageCount,
+                type: _prefs.getString(ConstansString.TYPE_SORT_USERS)));
           } else {
             ToastUtils.show("Please, try again");
           }

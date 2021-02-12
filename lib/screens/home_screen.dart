@@ -23,11 +23,14 @@ class _HomeScreenState extends State<HomeScreen> {
   String search = "doraemon";
   String labelSearch = "Search Users. . .";
   final searchTextController = TextEditingController(text: "doraemon");
+  SharedPreferences _prefs = App().sharedPreferences;
 
   @override
   void initState() {
     super.initState();
     _searchBloc = BlocProvider.of<SearchBloc>(context);
+    searchTextController.text =
+        _prefs.getString(ConstansString.KEYWORD_USERS) ?? "doraemon";
   }
 
   @override
@@ -76,11 +79,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                             DoGetDataEvent(isLoading: true));
                                         _searchBloc.add(GetSearchUsersEvent(
                                             q: search, perPage: "10", page: 1));
+                                        _prefs.setString(
+                                            ConstansString.KEYWORD_USERS,
+                                            search);
                                       } else if (indexTab == 1) {
                                         _searchBloc.add(
                                             DoGetDataEvent(isLoading: true));
                                         _searchBloc.add(GetSearchIssuesEvent(
                                             q: search, perPage: "10", page: 1));
+                                        _prefs.setString(
+                                            ConstansString.KEYWORD_ISSUES,
+                                            search);
                                       } else if (indexTab == 2) {
                                         _searchBloc.add(
                                             DoGetDataEvent(isLoading: true));
@@ -89,6 +98,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 q: search,
                                                 perPage: "10",
                                                 page: 1));
+                                        _prefs.setString(
+                                            ConstansString.KEYWORD_REPOSITORIES,
+                                            search);
                                       }
                                     }
                                   },
@@ -140,16 +152,25 @@ class _HomeScreenState extends State<HomeScreen> {
                               if (index == 0) {
                                 setState(() {
                                   labelSearch = "Search Users. . .";
+                                  searchTextController.text = _prefs.getString(
+                                          ConstansString.KEYWORD_USERS) ??
+                                      "doraemon";
                                   indexTab = index;
                                 });
                               } else if (index == 1) {
                                 setState(() {
                                   labelSearch = "Search Issues. . .";
+                                  searchTextController.text = _prefs.getString(
+                                      ConstansString.KEYWORD_ISSUES) ??
+                                      "doraemon";
                                   indexTab = index;
                                 });
                               } else if (index == 2) {
                                 setState(() {
                                   labelSearch = "Search Repository. . .";
+                                  searchTextController.text = _prefs.getString(
+                                      ConstansString.KEYWORD_REPOSITORIES) ??
+                                      "doraemon";
                                   indexTab = index;
                                 });
                               }

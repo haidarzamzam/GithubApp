@@ -10,7 +10,6 @@ import 'package:github_app/utils/dialog.dart';
 import 'package:github_app/utils/toast.dart';
 import 'package:github_app/utils/tools.dart';
 import 'package:intl/intl.dart';
-import 'package:loading_overlay/loading_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchIssuesScreen extends StatefulWidget {
@@ -41,6 +40,9 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
       _isSortIndex = false;
     } else if (_prefs.getString(ConstansString.TYPE_SORT_ISSUES) == "index") {
       _isSortIndex = true;
+    }
+    if (_prefs.getString(ConstansString.KEYWORD_ISSUES) != null) {
+      search = _prefs.getString(ConstansString.KEYWORD_ISSUES);
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -131,8 +133,14 @@ class _SearchIssuesScreenState extends State<SearchIssuesScreen> {
           if (state.message == "403") {
             _searchBloc.add(DoGetDataEvent(isLoading: false));
             LoadingDialogWidget.showLoading(context);
-            await Future.delayed(Duration(seconds: 20));
+            await Future.delayed(Duration(seconds: 30));
             Navigator.pop(context);
+            _searchBloc.add(DoGetDataEvent(isLoading: true));
+            _searchBloc.add(GetSearchIssuesEvent(
+                q: search,
+                perPage: "10",
+                page: 1,
+                type: _prefs.getString(ConstansString.TYPE_SORT_ISSUES)));
           } else {
             ToastUtils.show("Please, try again");
           }

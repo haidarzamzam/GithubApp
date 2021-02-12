@@ -41,6 +41,9 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
         "index") {
       _isSortIndex = true;
     }
+    if (_prefs.getString(ConstansString.KEYWORD_REPOSITORIES) != null) {
+      search = _prefs.getString(ConstansString.KEYWORD_REPOSITORIES);
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _searchBloc.add(DoGetDataEvent(isLoading: true));
@@ -131,8 +134,14 @@ class _SearchRepositoryScreenState extends State<SearchRepositoryScreen> {
           if (state.message == "403") {
             _searchBloc.add(DoGetDataEvent(isLoading: false));
             LoadingDialogWidget.showLoading(context);
-            await Future.delayed(Duration(seconds: 20));
+            await Future.delayed(Duration(seconds: 30));
             Navigator.pop(context);
+            _searchBloc.add(DoGetDataEvent(isLoading: true));
+            _searchBloc.add(GetSearchRepositoriesEvent(
+                q: search,
+                perPage: "10",
+                page: 1,
+                type: _prefs.getString(ConstansString.TYPE_SORT_REPOSITORIES)));
           } else {
             ToastUtils.show("Please, try again");
           }

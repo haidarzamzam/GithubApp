@@ -10,4 +10,8 @@ class ConstansString {
   static const String TYPE_SORT_USERS = 'TYPE_SORT_USERS';
   static const String TYPE_SORT_ISSUES = 'TYPE_SORT_ISSUES';
   static const String TYPE_SORT_REPOSITORIES = 'TYPE_SORT_REPOSITORIES';
+
+  static const String KEYWORD_USERS = 'KEYWORD_USERS';
+  static const String KEYWORD_ISSUES = 'KEYWORD_ISSUES';
+  static const String KEYWORD_REPOSITORIES = 'KEYWORD_REPOSITORIES';
 }
